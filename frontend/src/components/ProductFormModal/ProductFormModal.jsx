@@ -44,9 +44,6 @@ const ProductFormModal = ({ isOpen, onClose, product, onSuccess }) => {
                 quantity: product.quantity,
                 low_stock_threshold: product.low_stock_threshold
             });
-            // If the product category isn't in the fetched categories (should be rare),
-            // we might want to just show it as a new category, but it will be in categories 
-            // if it's an existing product.
             setIsNewCategory(false);
         } else {
             setFormData({
@@ -73,19 +70,41 @@ const ProductFormModal = ({ isOpen, onClose, product, onSuccess }) => {
         if (!formData.name.trim() || !formData.sku.trim() || !formData.category.trim()) {
             return setError('Name, SKU, and Category are required.');
         }
-        if (Number(formData.price) <= 0) {
+
+        const parsedPrice = Number(formData.price);
+        if (isNaN(parsedPrice) || parsedPrice <= 0) {
             return setError('Price must be a positive number.');
         }
-        if (Number(formData.quantity) < 0) {
-            return setError('Quantity cannot be negative.');
+
+        if (!isEdit) {
+            const parsedQuantity = Number(formData.quantity);
+            if (isNaN(parsedQuantity) || parsedQuantity < 0 || !Number.isInteger(parsedQuantity)) {
+                return setError('Quantity must be a non-negative integer.');
+            }
+        }
+
+        const parsedThreshold = Number(formData.low_stock_threshold);
+        if (isNaN(parsedThreshold) || parsedThreshold < 0 || !Number.isInteger(parsedThreshold)) {
+            return setError('Low stock threshold must be a non-negative integer.');
         }
 
         setIsSubmitting(true);
         try {
             if (isEdit) {
-                await api.put(`/products/${product.id}`, formData);
+                // Only send fields that can be edited (not quantity or sku)
+                await api.put(`/products/${product.id}`, {
+                    name: formData.name,
+                    category: formData.category,
+                    price: parsedPrice,
+                    low_stock_threshold: parsedThreshold
+                });
             } else {
-                await api.post('/products', formData);
+                await api.post('/products', {
+                    ...formData,
+                    price: parsedPrice,
+                    quantity: Number(formData.quantity),
+                    low_stock_threshold: parsedThreshold
+                });
             }
             onSuccess();
             onClose();
@@ -181,11 +200,23 @@ const ProductFormModal = ({ isOpen, onClose, product, onSuccess }) => {
                     <div className="form-row">
                         <div className="form-group">
                             <label>{isEdit ? 'Current Quantity' : 'Initial Quantity'} <span className="required">*</span></label>
-                            <input type="number" min="0" name="quantity" value={formData.quantity} onChange={handleChange} required />
+                            <input
+                                type="number"
+                                min="0"
+                                name="quantity"
+                                value={formData.quantity}
+                                onChange={handleChange}
+                                required={!isEdit}
+                                readOnly={isEdit}
+                                className={isEdit ? 'readonly-input' : ''}
+                            />
+                            {isEdit && (
+                                <span className="field-hint">Use Stock In / Stock Out to change quantity</span>
+                            )}
                         </div>
                         <div className="form-group">
-                            <label>Low Stock Threshold</label>
-                            <input type="number" min="0" name="low_stock_threshold" value={formData.low_stock_threshold} onChange={handleChange} />
+                            <label>Low Stock Threshold <span className="required">*</span></label>
+                            <input type="number" min="0" name="low_stock_threshold" value={formData.low_stock_threshold} onChange={handleChange} required />
                         </div>
                     </div>
 

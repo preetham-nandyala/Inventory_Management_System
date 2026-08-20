@@ -15,20 +15,28 @@ const setupDatabase = async () => {
             host: process.env.DB_HOST || 'localhost',
             user: process.env.DB_USER || 'root',
             password: process.env.DB_PASSWORD || '',
+            multipleStatements: true
         });
 
-        console.log('Creating database if not exists...');
-        await connection.query(`CREATE DATABASE IF NOT EXISTS ${process.env.DB_NAME || 'inventory_db'}`);
+        const dbName = process.env.DB_NAME || 'inventory_db';
 
-        await connection.query(`USE ${process.env.DB_NAME || 'inventory_db'}`);
+        console.log('Creating database if not exists...');
+        await connection.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\``);
+        await connection.query(`USE \`${dbName}\``);
 
         console.log('Reading database.sql...');
         const sqlPath = path.join(__dirname, '..', 'database.sql');
         const sqlScript = fs.readFileSync(sqlPath, 'utf8');
 
+        // Filter out CREATE DATABASE and USE statements since we handle them above
         const queries = sqlScript.split(';')
             .map(query => query.trim())
-            .filter(query => query.length > 0 && !query.startsWith('--'));
+            .filter(query =>
+                query.length > 0 &&
+                !query.startsWith('--') &&
+                !query.toUpperCase().startsWith('CREATE DATABASE') &&
+                !query.toUpperCase().startsWith('USE ')
+            );
 
         console.log('Executing table creation and seeding queries...');
         for (let query of queries) {

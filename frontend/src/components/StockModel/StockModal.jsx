@@ -15,14 +15,15 @@ const StockModal = ({ isOpen, onClose, product, type, onSuccess }) => {
         e.preventDefault();
         setError('');
 
-        if (Number(quantity) <= 0) {
-            return setError('Quantity must be greater than zero.');
+        const parsedQuantity = Number(quantity);
+        if (isNaN(parsedQuantity) || parsedQuantity <= 0 || !Number.isInteger(parsedQuantity)) {
+            return setError('Quantity must be a positive integer.');
         }
 
         setIsSubmitting(true);
         try {
             const endpoint = isStockIn ? `/products/${product.id}/stock-in` : `/products/${product.id}/stock-out`;
-            await api.post(endpoint, { quantity: Number(quantity), note });
+            await api.post(endpoint, { quantity: parsedQuantity, note });
             onSuccess();
             onClose();
         } catch (err) {

@@ -1,27 +1,27 @@
 CREATE DATABASE IF NOT EXISTS inventory_db;
 USE inventory_db;
 
-CREATE TABLE IF NOT EXISTS products {
-    id INT AUTO_INCREMENT PRIMARY_KEY,
+CREATE TABLE IF NOT EXISTS products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(250) NOT NULL,
-    sku VARCHAR(100) NOT NULL,
+    sku VARCHAR(100) NOT NULL UNIQUE,
     category VARCHAR(100) NOT NULL,
     price DECIMAL(10,2) NOT NULL,
     quantity INT NOT NULL,
     low_stock_threshold INT NOT NULL DEFAULT 10,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_atT TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-};
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
 
-CREATE TABLE IF NOT EXISTS transactions{
-    id INT AUTO_INCREMENT PRIMARY_KEY
-    product_id INT NOT NULL
+CREATE TABLE IF NOT EXISTS transactions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
     type ENUM('IN','OUT') NOT NULL,
-    quantity INT NOT NULL
-    note TEXT
+    quantity INT NOT NULL,
+    note TEXT,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
-}
+);
 
 
 INSERT INTO products (name, sku, category, price, quantity, low_stock_threshold) VALUES

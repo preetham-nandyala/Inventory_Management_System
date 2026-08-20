@@ -48,3 +48,9 @@
     padding-top: 1rem;
     border-top: 1px solid var(--border-color);
 }
+
+.field-hint {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-style: italic;
+}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Plus, Edit2, Trash2, ArrowDownCircle, ArrowUpCircle, X } from 'lucide-react';
 import api from '../../api';
@@ -21,25 +21,30 @@ const ProductList = () => {
 
     const [productToDelete, setProductToDelete] = useState(null);
 
-    const fetchProducts = async () => {
+    const fetchCategories = useCallback(async () => {
+        try {
+            const res = await api.get('/products/categories');
+            setCategories(res.data);
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+        }
+    }, []);
+
+    const fetchProducts = useCallback(async () => {
         try {
             const res = await api.get('/products', {
                 params: { search, category }
             });
             setProducts(res.data);
-
-            if (categories.length === 0) {
-                const uniqueCategories = [...new Set(res.data.map(p => p.category))];
-                setCategories(uniqueCategories);
-            }
         } catch (error) {
             console.error('Error fetching products:', error);
         }
-    };
+    }, [search, category]);
 
     useEffect(() => {
         fetchProducts();
-    }, [search, category]);
+        fetchCategories();
+    }, [fetchProducts, fetchCategories]);
 
     const handleDeleteClick = (product) => {
         setProductToDelete(product);
@@ -50,6 +55,7 @@ const ProductList = () => {
             try {
                 await api.delete(`/products/${productToDelete.id}`);
                 fetchProducts();
+                fetchCategories();
             } catch (error) {
                 console.error('Error deleting product:', error);
                 alert('Failed to delete product.');
@@ -72,6 +78,11 @@ const ProductList = () => {
         setStockProduct(product);
         setStockActionType(type);
         setIsStockModalOpen(true);
+    };
+
+    const handleProductSuccess = () => {
+        fetchProducts();
+        fetchCategories();
     };
 
     return (
@@ -166,7 +177,7 @@ const ProductList = () => {
                     isOpen={isProductModalOpen}
                     onClose={() => setIsProductModalOpen(false)}
                     product={editingProduct}
-                    onSuccess={fetchProducts}
+                    onSuccess={handleProductSuccess}
                 />
             )}
 
@@ -176,7 +187,7 @@ const ProductList = () => {
                     onClose={() => setIsStockModalOpen(false)}
                     product={stockProduct}
                     type={stockActionType}
-                    onSuccess={fetchProducts}
+                    onSuccess={handleProductSuccess}
                 />
             )}
 

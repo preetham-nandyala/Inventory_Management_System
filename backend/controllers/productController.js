@@ -31,14 +31,28 @@ export const getProduct = async (req, res, next) => {
 
 export const createProduct = async (req, res, next) => {
     try {
-        const { name, sku, category, price, quantity } = req.body;
+        const { name, sku, category, price, quantity, low_stock_threshold } = req.body;
 
-        if (!name || !sku || !category) {
-            return res.status(400).json({ error: "Name, SKU and category are required" });
+        if (!name || !String(name).trim() || !sku || !String(sku).trim() || !category || !String(category).trim()) {
+            return res.status(400).json({ error: "Name, SKU and Category are required and must not be empty." });
         }
 
-        if (price <= 0 || quantity < 0) {
-            return res.status(400).json({ error: "price must be greater than 0 and quantity must be at least 0" });
+        const parsedPrice = Number(price);
+        const parsedQuantity = Number(quantity);
+
+        if (isNaN(parsedPrice) || parsedPrice <= 0) {
+            return res.status(400).json({ error: "Price must be a positive number." });
+        }
+
+        if (isNaN(parsedQuantity) || parsedQuantity < 0 || !Number.isInteger(parsedQuantity)) {
+            return res.status(400).json({ error: "Quantity must be a non-negative integer." });
+        }
+
+        if (low_stock_threshold !== undefined && low_stock_threshold !== null) {
+            const parsedThreshold = Number(low_stock_threshold);
+            if (isNaN(parsedThreshold) || parsedThreshold < 0 || !Number.isInteger(parsedThreshold)) {
+                return res.status(400).json({ error: "Low stock threshold must be a non-negative integer." });
+            }
         }
 
         const newId = await productService.createProduct(req.body);
@@ -53,13 +67,22 @@ export const createProduct = async (req, res, next) => {
 
 export const updateProduct = async (req, res, next) => {
     try {
-        const { name, category, price, quantity } = req.body;
+        const { name, category, price, low_stock_threshold } = req.body;
 
-        if (!name || !category) {
-            return res.status(400).json({ error: 'Name and Category are required.' });
+        if (!name || !String(name).trim() || !category || !String(category).trim()) {
+            return res.status(400).json({ error: 'Name and Category are required and must not be empty.' });
         }
-        if (price <= 0 || quantity < 0) {
-            return res.status(400).json({ error: "Price must be greater than 0 and quantity must be atleast 0." });
+
+        const parsedPrice = Number(price);
+        if (isNaN(parsedPrice) || parsedPrice <= 0) {
+            return res.status(400).json({ error: "Price must be a positive number." });
+        }
+
+        if (low_stock_threshold !== undefined && low_stock_threshold !== null) {
+            const parsedThreshold = Number(low_stock_threshold);
+            if (isNaN(parsedThreshold) || parsedThreshold < 0 || !Number.isInteger(parsedThreshold)) {
+                return res.status(400).json({ error: "Low stock threshold must be a non-negative integer." });
+            }
         }
 
         const updated = await productService.updateProduct(req.params.id, req.body);
@@ -83,11 +106,13 @@ export const deleteProduct = async (req, res, next) => {
 export const stockIn = async (req, res, next) => {
     try {
         const { quantity, note } = req.body;
-        if (!quantity || quantity <= 0) {
-            return res.status(400).json({ error: "Quantity must be greater than zero." });
+        const parsedQuantity = Number(quantity);
+
+        if (isNaN(parsedQuantity) || parsedQuantity <= 0 || !Number.isInteger(parsedQuantity)) {
+            return res.status(400).json({ error: "Quantity must be a positive integer." });
         }
 
-        const newQuantity = await productService.adjustStock(req.params.id, quantity, 'IN', note);
+        const newQuantity = await productService.adjustStock(req.params.id, parsedQuantity, 'IN', note);
         res.json({ message: "Stock added successfully", newQuantity });
     } catch (error) {
         if (error.message === "Product not found") {
@@ -100,10 +125,13 @@ export const stockIn = async (req, res, next) => {
 export const stockOut = async (req, res, next) => {
     try {
         const { quantity, note } = req.body;
-        if (!quantity || quantity <= 0) {
-            return res.status(400).json({ error: "Quantity must be greater than zero" });
+        const parsedQuantity = Number(quantity);
+
+        if (isNaN(parsedQuantity) || parsedQuantity <= 0 || !Number.isInteger(parsedQuantity)) {
+            return res.status(400).json({ error: "Quantity must be a positive integer." });
         }
-        const newQuantity = await productService.adjustStock(req.params.id, quantity, 'OUT', note);
+
+        const newQuantity = await productService.adjustStock(req.params.id, parsedQuantity, 'OUT', note);
         res.json({ message: "Stock removed successfully", newQuantity });
     } catch (error) {
         if (error.message === "Product not found") {

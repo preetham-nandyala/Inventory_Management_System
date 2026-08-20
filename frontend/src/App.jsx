@@ -8,7 +8,6 @@ function App() {
     <Router>
       <div className="container">
         <h1>Inventory Management System</h1>
-        {/* Components will be added here step by step */}
         <Routes>
           <Route path="/" element={<ProductList />} />
           <Route path="/product/:id/transactions" element={<TransactionHistory />} />

@@ -46,9 +46,10 @@ export const createProduct = async(productData)=>{
 };
 
 export const updateProduct = async(id, productData)=>{
-    const {name, category, price, quantity, low_stock_threshold} = productData;
-    const [result] = await pool.execute("UPDATE products SET name = ?, category = ?, price = ?, quantity = ?, low_stock_threshold = ?, updated_at = NOW() WHERE id = ?",
-        [name, category, price, quantity, low_stock_threshold,id]
+    const {name, category, price, low_stock_threshold} = productData;
+    const threshold = low_stock_threshold || 10;
+    const [result] = await pool.execute("UPDATE products SET name = ?, category = ?, price = ?, low_stock_threshold = ?, updated_at = NOW() WHERE id = ?",
+        [name, category, price, threshold, id]
     )
     return result.affectedRows > 0;
 };
