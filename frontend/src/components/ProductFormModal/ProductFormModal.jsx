@@ -66,7 +66,7 @@ const ProductFormModal = ({ isOpen, onClose, product, onSuccess }) => {
         e.preventDefault();
         setError('');
 
-        // Validations
+
         if (!formData.name.trim() || !formData.sku.trim() || !formData.category.trim()) {
             return setError('Name, SKU, and Category are required.');
         }
@@ -91,7 +91,6 @@ const ProductFormModal = ({ isOpen, onClose, product, onSuccess }) => {
         setIsSubmitting(true);
         try {
             if (isEdit) {
-                // Only send fields that can be edited (not quantity or sku)
                 await api.put(`/products/${product.id}`, {
                     name: formData.name,
                     category: formData.category,

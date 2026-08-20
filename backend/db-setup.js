@@ -28,7 +28,6 @@ const setupDatabase = async () => {
         const sqlPath = path.join(__dirname, '..', 'database.sql');
         const sqlScript = fs.readFileSync(sqlPath, 'utf8');
 
-        // Filter out CREATE DATABASE and USE statements since we handle them above
         const queries = sqlScript.split(';')
             .map(query => query.trim())
             .filter(query =>

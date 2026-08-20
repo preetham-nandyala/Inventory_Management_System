@@ -29,6 +29,27 @@ const TransactionHistory = () => {
         fetchData();
     }, [id]);
 
+    const getTransactionsWithBalance = () => {
+        if (!product || transactions.length === 0) return [];
+
+        let balance = product.quantity;
+        const result = transactions.map((txn, index) => {
+            const currentBalance = balance;
+            if (index < transactions.length - 1) {
+                if (txn.type === 'IN') {
+                    balance = balance - txn.quantity;
+                } else {
+                    balance = balance + txn.quantity;
+                }
+            }
+            return { ...txn, balance: currentBalance };
+        });
+
+        return result;
+    };
+
+    const transactionsWithBalance = getTransactionsWithBalance();
+
     if (loading) return <div className="loading-state">Loading...</div>;
     if (error) return <div className="error-message">{error}</div>;
     if (!product) return <div className="error-message">Product not found.</div>;
@@ -69,15 +90,16 @@ const TransactionHistory = () => {
                             <th>Type</th>
                             <th>Quantity</th>
                             <th>Note</th>
+                            <th>Stock After</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {transactions.length === 0 ? (
+                        {transactionsWithBalance.length === 0 ? (
                             <tr>
-                                <td colSpan="4" className="empty-state">No transactions found for this product.</td>
+                                <td colSpan="5" className="empty-state">No transactions found for this product.</td>
                             </tr>
                         ) : (
-                            transactions.map(txn => (
+                            transactionsWithBalance.map(txn => (
                                 <tr key={txn.id}>
                                     <td>{new Date(txn.timestamp).toLocaleString()}</td>
                                     <td>
@@ -85,8 +107,17 @@ const TransactionHistory = () => {
                                             {txn.type}
                                         </span>
                                     </td>
-                                    <td>{txn.quantity}</td>
+                                    <td className="quantity-col">
+                                        <span className={txn.type === 'IN' ? 'qty-in' : 'qty-out'}>
+                                            {txn.type === 'IN' ? '+' : '-'}{txn.quantity}
+                                        </span>
+                                    </td>
                                     <td className="note-col">{txn.note || '-'}</td>
+                                    <td>
+                                        <span className={`balance-badge ${txn.balance < product.low_stock_threshold ? 'balance-low' : 'balance-ok'}`}>
+                                            {txn.balance}
+                                        </span>
+                                    </td>
                                 </tr>
                             ))
                         )}

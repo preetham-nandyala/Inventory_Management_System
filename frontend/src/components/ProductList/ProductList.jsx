@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Plus, Edit2, Trash2, ArrowDownCircle, ArrowUpCircle, X } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, ArrowDownCircle, ArrowUpCircle, X, MoreVertical } from 'lucide-react';
 import api from '../../api';
 import ProductFormModal from '../ProductFormModal/ProductFormModal';
 import StockModal from '../StockModel/StockModal';
@@ -16,10 +16,21 @@ const ProductList = () => {
     const [editingProduct, setEditingProduct] = useState(null);
 
     const [isStockModalOpen, setIsStockModalOpen] = useState(false);
-    const [stockActionType, setStockActionType] = useState('IN'); // 'IN' or 'OUT'
+    const [stockActionType, setStockActionType] = useState('IN');
     const [stockProduct, setStockProduct] = useState(null);
 
     const [productToDelete, setProductToDelete] = useState(null);
+    const [activeDropdown, setActiveDropdown] = useState(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (!event.target.closest('.action-dropdown-container')) {
+                setActiveDropdown(null);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const fetchCategories = useCallback(async () => {
         try {
@@ -151,18 +162,27 @@ const ProductList = () => {
                                     </td>
                                     <td>
                                         <div className="action-buttons">
-                                            <button className="icon-btn tooltip" data-tip="Stock In" onClick={() => openStockModal(product, 'IN')}>
-                                                <ArrowDownCircle size={18} className="text-success" />
+                                            <button className="action-btn action-stock-in" onClick={() => openStockModal(product, 'IN')}>
+                                                <ArrowDownCircle size={14} /> In
                                             </button>
-                                            <button className="icon-btn tooltip" data-tip="Stock Out" onClick={() => openStockModal(product, 'OUT')}>
-                                                <ArrowUpCircle size={18} className="text-danger" />
+                                            <button className="action-btn action-stock-out" onClick={() => openStockModal(product, 'OUT')}>
+                                                <ArrowUpCircle size={14} /> Out
                                             </button>
-                                            <button className="icon-btn tooltip" data-tip="Edit" onClick={() => openEditModal(product)}>
-                                                <Edit2 size={18} className="text-primary" />
-                                            </button>
-                                            <button className="icon-btn tooltip" data-tip="Delete" onClick={() => handleDeleteClick(product)}>
-                                                <Trash2 size={18} className="text-danger" />
-                                            </button>
+                                            <div className="action-dropdown-container" style={{ position: 'relative' }}>
+                                                <button className="action-btn action-more" onClick={() => setActiveDropdown(activeDropdown === product.id ? null : product.id)}>
+                                                    <MoreVertical size={14} />
+                                                </button>
+                                                {activeDropdown === product.id && (
+                                                    <div className="dropdown-menu">
+                                                        <button className="dropdown-item" onClick={() => { openEditModal(product); setActiveDropdown(null); }}>
+                                                            <Edit2 size={14} /> Edit
+                                                        </button>
+                                                        <button className="dropdown-item text-danger" onClick={() => { handleDeleteClick(product); setActiveDropdown(null); }}>
+                                                            <Trash2 size={14} /> Delete
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>

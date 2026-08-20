@@ -35,3 +35,15 @@ INSERT INTO products (name, sku, category, price, quantity, low_stock_threshold)
 ('1080p Webcam', 'WC-008', 'Electronics', 45.99, 85, 20),
 ('Desk Lamp', 'DL-009', 'Furniture', 22.50, 120, 25),
 ('Bluetooth Speaker', 'BS-010', 'Electronics', 55.00, 60, 15);
+
+INSERT INTO transactions (product_id, type, quantity, note) VALUES
+(1, 'IN', 150, 'Initial stock on product creation'),
+(2, 'IN', 45, 'Initial stock on product creation'),
+(3, 'IN', 200, 'Initial stock on product creation'),
+(4, 'IN', 8, 'Initial stock on product creation'),
+(5, 'IN', 5, 'Initial stock on product creation'),
+(6, 'IN', 30, 'Initial stock on product creation'),
+(7, 'IN', 500, 'Initial stock on product creation'),
+(8, 'IN', 85, 'Initial stock on product creation'),
+(9, 'IN', 120, 'Initial stock on product creation'),
+(10, 'IN', 60, 'Initial stock on product creation');

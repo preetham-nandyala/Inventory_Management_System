@@ -1,0 +1,561 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+		"name": "Product Inventory Management System",
+		"description": "API collection for the Product Inventory Management System. Covers all CRUD operations for products and stock management endpoints.\n\n**Base URL:** http://localhost:5000/api\n\n**Setup:**\n1. Start the backend server: `cd backend && npm run dev`\n2. Make sure the database is set up: `npm run db:setup`",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000/api",
+			"type": "string"
+		},
+		{
+			"key": "productId",
+			"value": "1",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Products CRUD",
+			"description": "Create, Read, Update, and Delete operations for products.",
+			"item": [
+				{
+					"name": "Create Product",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Gaming Monitor\",\n    \"sku\": \"GM-011\",\n    \"category\": \"Electronics\",\n    \"price\": 349.99,\n    \"quantity\": 25,\n    \"low_stock_threshold\": 5\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products",
+							"host": ["{{baseUrl}}"],
+							"path": ["products"]
+						},
+						"description": "Add a new product to the inventory.\n\n**Required fields:** name, sku, category, price, quantity\n**Optional fields:** low_stock_threshold (defaults to 10)\n\n**Validations:**\n- SKU must be unique\n- Price must be a positive number\n- Quantity must be a non-negative integer\n- Name, SKU, and Category must not be empty"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Product - Duplicate SKU (Should Fail)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Another Mouse\",\n    \"sku\": \"WM-001\",\n    \"category\": \"Electronics\",\n    \"price\": 19.99,\n    \"quantity\": 10\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products",
+							"host": ["{{baseUrl}}"],
+							"path": ["products"]
+						},
+						"description": "Attempt to create a product with a duplicate SKU. Expected: 400 error with message about duplicate SKU."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Product - Missing Fields (Should Fail)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"\",\n    \"sku\": \"\",\n    \"category\": \"\",\n    \"price\": 10,\n    \"quantity\": 5\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products",
+							"host": ["{{baseUrl}}"],
+							"path": ["products"]
+						},
+						"description": "Attempt to create a product with empty required fields. Expected: 400 error."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Product - Invalid Price (Should Fail)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Test Product\",\n    \"sku\": \"TP-999\",\n    \"category\": \"Test\",\n    \"price\": -5,\n    \"quantity\": 10\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products",
+							"host": ["{{baseUrl}}"],
+							"path": ["products"]
+						},
+						"description": "Attempt to create a product with a negative price. Expected: 400 error."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Product - Invalid Quantity (Should Fail)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Test Product\",\n    \"sku\": \"TP-998\",\n    \"category\": \"Test\",\n    \"price\": 10,\n    \"quantity\": -3\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products",
+							"host": ["{{baseUrl}}"],
+							"path": ["products"]
+						},
+						"description": "Attempt to create a product with a negative quantity. Expected: 400 error."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products",
+							"host": ["{{baseUrl}}"],
+							"path": ["products"]
+						},
+						"description": "Retrieve all products in the inventory. Returns an array of product objects."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Products - Search by Name",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products?search=mouse",
+							"host": ["{{baseUrl}}"],
+							"path": ["products"],
+							"query": [
+								{
+									"key": "search",
+									"value": "mouse"
+								}
+							]
+						},
+						"description": "Search products by name. Returns products whose name contains 'mouse' (case-insensitive)."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Products - Search by SKU",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products?search=WM-001",
+							"host": ["{{baseUrl}}"],
+							"path": ["products"],
+							"query": [
+								{
+									"key": "search",
+									"value": "WM-001"
+								}
+							]
+						},
+						"description": "Search products by SKU. Returns products whose SKU contains the search term."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Products - Filter by Category",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products?category=Electronics",
+							"host": ["{{baseUrl}}"],
+							"path": ["products"],
+							"query": [
+								{
+									"key": "category",
+									"value": "Electronics"
+								}
+							]
+						},
+						"description": "Filter products by category. Returns only products in the 'Electronics' category."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Products - Search + Category Filter",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products?search=desk&category=Furniture",
+							"host": ["{{baseUrl}}"],
+							"path": ["products"],
+							"query": [
+								{
+									"key": "search",
+									"value": "desk"
+								},
+								{
+									"key": "category",
+									"value": "Furniture"
+								}
+							]
+						},
+						"description": "Combine search and category filter. Returns products matching both criteria."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products/categories",
+							"host": ["{{baseUrl}}"],
+							"path": ["products", "categories"]
+						},
+						"description": "Get a list of all unique product categories. Returns an array of category name strings."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Product",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products/{{productId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["products", "{{productId}}"]
+						},
+						"description": "Get detailed information for a single product by its ID."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Product - Not Found (Should Fail)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products/99999",
+							"host": ["{{baseUrl}}"],
+							"path": ["products", "99999"]
+						},
+						"description": "Attempt to get a product that doesn't exist. Expected: 404 error."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Product",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Wireless Mouse Pro\",\n    \"category\": \"Electronics\",\n    \"price\": 29.99,\n    \"low_stock_threshold\": 25\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products/{{productId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["products", "{{productId}}"]
+						},
+						"description": "Update an existing product's details.\n\n**Editable fields:** name, category, price, low_stock_threshold\n**Note:** SKU and quantity cannot be changed via this endpoint. Use Stock In/Out to modify quantity."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Product - Not Found (Should Fail)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Ghost Product\",\n    \"category\": \"None\",\n    \"price\": 10,\n    \"low_stock_threshold\": 5\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products/99999",
+							"host": ["{{baseUrl}}"],
+							"path": ["products", "99999"]
+						},
+						"description": "Attempt to update a product that doesn't exist. Expected: 404 error."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Product",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products/{{productId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["products", "{{productId}}"]
+						},
+						"description": "Delete a product and all its associated transaction records.\n\n**Warning:** This action cannot be undone."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Product - Not Found (Should Fail)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products/99999",
+							"host": ["{{baseUrl}}"],
+							"path": ["products", "99999"]
+						},
+						"description": "Attempt to delete a product that doesn't exist. Expected: 404 error."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Stock Management",
+			"description": "Stock In, Stock Out, and Transaction History endpoints.",
+			"item": [
+				{
+					"name": "Stock In",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"quantity\": 50,\n    \"note\": \"New shipment arrived from supplier\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products/{{productId}}/stock-in",
+							"host": ["{{baseUrl}}"],
+							"path": ["products", "{{productId}}", "stock-in"]
+						},
+						"description": "Add stock to a product.\n\n**Required:** quantity (positive integer)\n**Optional:** note (text description of the stock movement)\n\nThe product's quantity will be increased and a transaction record will be created."
+					},
+					"response": []
+				},
+				{
+					"name": "Stock In - Without Note",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"quantity\": 10\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products/{{productId}}/stock-in",
+							"host": ["{{baseUrl}}"],
+							"path": ["products", "{{productId}}", "stock-in"]
+						},
+						"description": "Add stock without a note. The note field is optional."
+					},
+					"response": []
+				},
+				{
+					"name": "Stock In - Invalid Quantity (Should Fail)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"quantity\": 0,\n    \"note\": \"This should fail\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products/{{productId}}/stock-in",
+							"host": ["{{baseUrl}}"],
+							"path": ["products", "{{productId}}", "stock-in"]
+						},
+						"description": "Attempt to add zero stock. Expected: 400 error (quantity must be greater than zero)."
+					},
+					"response": []
+				},
+				{
+					"name": "Stock In - Negative Quantity (Should Fail)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"quantity\": -5,\n    \"note\": \"This should fail\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products/{{productId}}/stock-in",
+							"host": ["{{baseUrl}}"],
+							"path": ["products", "{{productId}}", "stock-in"]
+						},
+						"description": "Attempt to add negative stock. Expected: 400 error."
+					},
+					"response": []
+				},
+				{
+					"name": "Stock Out",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"quantity\": 5,\n    \"note\": \"Sold to customer\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products/{{productId}}/stock-out",
+							"host": ["{{baseUrl}}"],
+							"path": ["products", "{{productId}}", "stock-out"]
+						},
+						"description": "Remove stock from a product.\n\n**Required:** quantity (positive integer, must not exceed current available stock)\n**Optional:** note (text description)\n\nThe product's quantity will be decreased and a transaction record will be created."
+					},
+					"response": []
+				},
+				{
+					"name": "Stock Out - Exceeds Available (Should Fail)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"quantity\": 999999,\n    \"note\": \"This should fail - exceeds available stock\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products/{{productId}}/stock-out",
+							"host": ["{{baseUrl}}"],
+							"path": ["products", "{{productId}}", "stock-out"]
+						},
+						"description": "Attempt to remove more stock than available. Expected: 400 error with message about exceeding available stock."
+					},
+					"response": []
+				},
+				{
+					"name": "Stock Out - Zero Quantity (Should Fail)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"quantity\": 0,\n    \"note\": \"This should fail\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products/{{productId}}/stock-out",
+							"host": ["{{baseUrl}}"],
+							"path": ["products", "{{productId}}", "stock-out"]
+						},
+						"description": "Attempt to remove zero stock. Expected: 400 error."
+					},
+					"response": []
+				},
+				{
+					"name": "Stock Out - Product Not Found (Should Fail)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"quantity\": 1,\n    \"note\": \"This should fail\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products/99999/stock-out",
+							"host": ["{{baseUrl}}"],
+							"path": ["products", "99999", "stock-out"]
+						},
+						"description": "Attempt stock out on a non-existent product. Expected: 404 error."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Transaction History",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products/{{productId}}/transactions",
+							"host": ["{{baseUrl}}"],
+							"path": ["products", "{{productId}}", "transactions"]
+						},
+						"description": "Get the complete stock movement history for a product. Returns transactions ordered by most recent first.\n\nEach transaction includes: id, product_id, type (IN/OUT), quantity, note, timestamp."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
