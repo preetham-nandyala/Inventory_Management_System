@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import express from "express";
 import cors from 'cors';
-import productRoutes from '../routes/product.js';
+import productRoutes from './routes/product.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
