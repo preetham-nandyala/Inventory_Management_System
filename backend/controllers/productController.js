@@ -47,6 +47,7 @@ export const createProduct = async (req, res, next) => {
         if (error.message.includes('SKU')) {
             return res.status(400).json({ error: error.message });
         }
+        next(error);
     }
 };
 

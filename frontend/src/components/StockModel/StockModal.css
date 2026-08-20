@@ -1,0 +1,25 @@
+.stock-modal {
+    max-width: 400px;
+}
+
+.stock-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.stock-info {
+    background-color: #f9fafb;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    text-align: center;
+    font-size: 1.125rem;
+}
+
+.stock-info strong {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    display: block;
+    margin-top: 0.25rem;
+}

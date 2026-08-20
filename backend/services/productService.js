@@ -38,7 +38,7 @@ export const createProduct = async(productData)=>{
         throw new Error("A product with this SKU is already exists.");
     }
     const [result] = await pool.execute(
-        'INSERT INTO products (name, sku, category, price, quantity, low_stock_threshold) VALUES (?,?,?,?,?,?)',
+        'INSERT INTO products (name, sku, category, price, quantity, low_stock_threshold, created_at, updated_at) VALUES (?,?,?,?,?,?, NOW(), NOW())',
         [name,sku,category,price,quantity,threshold]
     );
 
@@ -47,7 +47,7 @@ export const createProduct = async(productData)=>{
 
 export const updateProduct = async(id, productData)=>{
     const {name, category, price, quantity, low_stock_threshold} = productData;
-    const [result] = await pool.execute("UPDATE products SET name = ?, category = ?, price = ?, quantity = ?, low_stock_threshold = ? WHERE id = ?",
+    const [result] = await pool.execute("UPDATE products SET name = ?, category = ?, price = ?, quantity = ?, low_stock_threshold = ?, updated_at = NOW() WHERE id = ?",
         [name, category, price, quantity, low_stock_threshold,id]
     )
     return result.affectedRows > 0;
@@ -86,7 +86,7 @@ export const adjustStock = async(id, quantity, type, note)=>{
         );
 
         await connection.execute(
-            'INSERT INTO transactions (product_id, type, quantity,note) VALUES (?,?,?,?)',
+            'INSERT INTO transactions (product_id, type, quantity, note, timestamp) VALUES (?,?,?,?, NOW())',
             [id, type,quantity,note || null]
         )
         await connection.commit();

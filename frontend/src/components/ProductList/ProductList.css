@@ -1,0 +1,226 @@
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.filters {
+    display: flex;
+    gap: 1rem;
+    flex: 1;
+}
+
+.search-box {
+    position: relative;
+    flex: 1;
+    max-width: 400px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+}
+
+.search-box input {
+    padding-left: 2.5rem;
+}
+
+.filters select {
+    width: auto;
+    min-width: 150px;
+}
+
+.table-wrapper {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+    overflow-x: auto;
+}
+
+.product-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    table-layout: fixed;
+}
+
+.product-table th:nth-child(1) {
+    width: 25%;
+}
+
+/* Name */
+.product-table th:nth-child(2) {
+    width: 12%;
+}
+
+/* SKU */
+.product-table th:nth-child(3) {
+    width: 15%;
+}
+
+/* Category */
+.product-table th:nth-child(4) {
+    width: 10%;
+}
+
+/* Price */
+.product-table th:nth-child(5) {
+    width: 10%;
+}
+
+/* Quantity */
+.product-table th:nth-child(6) {
+    width: 13%;
+}
+
+/* Status */
+.product-table th:nth-child(7) {
+    width: 15%;
+}
+
+/* Actions */
+
+.product-table th,
+.product-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.product-table th {
+    background-color: #f9fafb;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.product-table tr:hover {
+    background-color: #f9fafb;
+    transition: var(--transition);
+}
+
+.product-table tr:last-child td {
+    border-bottom: none;
+}
+
+.product-name-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.product-name-link:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.sku-badge {
+    background-color: #e5e7eb;
+    color: var(--text-secondary);
+}
+
+.status-in {
+    background-color: #d1fae5;
+    color: var(--success-hover);
+}
+
+.status-low {
+    background-color: #fee2e2;
+    color: var(--danger-hover);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.low-quantity {
+    color: var(--danger-color);
+    font-weight: 600;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    padding: 0.25rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-btn:hover {
+    background-color: #f3f4f6;
+    transform: scale(1.1);
+}
+
+.text-primary {
+    color: var(--primary-color);
+}
+
+.text-danger {
+    color: var(--danger-color);
+}
+
+.text-success {
+    color: var(--success-color);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem !important;
+    color: var(--text-secondary);
+}
+
+/* Tooltip basic implementation */
+.tooltip {
+    position: relative;
+}
+
+.tooltip:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 10;
+    margin-bottom: 4px;
+}
